@@ -1,0 +1,17 @@
+Please find below the description of all the files used :
+
+FOR CHALLENGE 1 :  
+    1. aks-cluster foler - this is a child module to create an AKS cluster on Azure. 
+    2. main.tf file - this is present in the root module to reference aks module as well as to store the tfstate    file in Azure storage account.
+    3. mwiki.yaml file - it contains the mediawiki application which also includes a dynamic PV provisioning.
+    4. postgres.yaml file - it contains postgres application running as a seperate container.
+    5. .gitignore file - to ignore .terraform directory.
+
+
+FOR CHALLENGE 2 :
+    1. threeapps.yaml file - contains three applications with memory and cpu limits
+    2. mwiki-with-localstorage.yaml - it contains mediawiki application with local storage referencing the csv file
+
+
+FOR CHALLENGE 3 :
+    1. mwiki-with-configmap.yaml - it contains media wiki application referencing the environment variables from config map.
