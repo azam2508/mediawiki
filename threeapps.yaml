@@ -1,0 +1,133 @@
+---
+# FIRST APPLICATION
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: applicationa
+spec:
+  selector:
+    matchLabels:
+      app: applicationa
+  replicas: 1 # tells deployment to run 1 pods matching the template
+  template:
+    metadata:
+      labels:
+        app: applicationa
+    spec:
+     containers:
+     - name: nginx
+       image: nginx:latest
+       resources:
+       # Adding resource limit so that it won't consume more than 400MB memory
+        requests:
+         memory: "100Mi"
+         cpu: "100m"
+        limits:
+         memory: "400Mi"
+         cpu: "200m"
+       ports:
+       - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: applicationa-service
+  labels:
+    app: applicationa
+spec:
+  selector:
+    app: applicationa
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+
+---
+# SECOND APPLICATION
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: applicationb
+spec:
+  selector:
+    matchLabels:
+     app: applicationb
+  replicas: 1 # tells deployment to run 1 pods matching the template
+  template:
+    metadata:
+      labels:
+        app: applicationb
+    spec:
+     containers:
+     - name: busybox
+       image: busybox:latest
+       resources:
+       # Adding resource limit so that it won't consume more than 200MB memory
+        requests:
+         memory: "100Mi"
+         cpu: "100m"
+        limits:
+         memory: "200Mi"
+         cpu: "200m"
+       ports:
+       - containerPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: applicationb-service
+  labels:
+    app: applicationb
+spec:
+  selector:
+    app: applicationb
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+# THIRD APPLICATION
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: applicationc
+spec:
+  selector:
+    matchLabels:
+      app: applicationc
+  replicas: 1 # tells deployment to run 1 pods matching the template
+  template:
+    metadata:
+      labels:
+        app: applicationc
+    spec:
+     containers:
+     - name: wordpress
+       image: wordpress:latest
+       resources:
+       # Adding resource limit so that it won't consume more than 400MB memory
+        requests:
+         memory: "100Mi"
+         cpu: "100m"
+        limits:
+         memory: "400Mi"
+         cpu: "200m"
+       ports:
+       - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: applicationc-service
+  labels:
+    app: applicationc
+spec:
+  selector:
+    app: applicationc
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
