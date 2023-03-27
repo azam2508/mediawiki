@@ -1,0 +1,60 @@
+# I CREATED A CSV FILE ON THE LOCAL STORAGE WITH TWO ROWS AND TWO COLUMNS AND CREATED A PV AND PVC.
+
+# THERE ARE OTHER WAYS TO DO THIS, AZURE BLOB OR AZURE FILE SHARE CAN ALSO BE USED HERE IN PVC SECTION .
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: csv-volume
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/keycloakdata/mwiki"
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: csv-volume-claim
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mediawiki
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mediawiki
+  template:
+    metadata:
+      labels:
+        app: mediawiki
+    spec:
+      containers:
+        - name: mediawiki
+          image: mediawiki:latest
+          ports:
+          - containerPort: 80
+          volumeMounts:
+          - name: csv-volume
+            mountPath: /var/www/html
+      volumes:
+      - name: csv-volume
+        persistentVolumeClaim:
+         claimName: csv-volume-claim
