@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mediawiki
+  labels:
+    app: mediawiki
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 8000
+    name: http
+    targetPort: 80
+  selector:
+    app: mediawiki
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mediawiki-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: default
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mediawiki
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mediawiki
+  template:
+    metadata:
+      labels:
+        app: mediawiki
+    spec:
+      containers:
+        - name: mediawiki
+          image: mediawiki:latest
+          env:
+          - name: POSTGRES_DB
+            value: mediawiki
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: postgres-credentials
+                key: username
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgres-credentials
+                key: password
+          - name: MW_INSTALL_PATH
+            value: /var/www/html
+          - name: MW_SITE_NAME
+            value: "My MediaWiki Site"
+          - name: MW_SITE_SERVER
+            value: "my.mediawiki.site"
+          ports:
+          - containerPort: 80
+          volumeMounts:
+          - name: mediawiki-pv-storage
+            mountPath: /var/www/html
+      volumes:
+      - name: mediawiki-pv-storage
+        persistentVolumeClaim:
+        claimName: mediawiki-pvc
